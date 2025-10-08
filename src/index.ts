@@ -12,6 +12,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
   autoStart: true,
   activate: (app: JupyterFrontEnd) => {
     console.log('JupyterLab extension jupyterlab_block_copy is activated!');
+     // Inject script để chặn events
+    const script = document.createElement('script');
+    script.textContent = `
+      // Chặn copy, cut, paste, và contextmenu
+      ['copy', 'cut', 'paste', 'contextmenu'].forEach(eventType => {
+        document.addEventListener(eventType, function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }, true); // Capture phase để chặn sớm
+      });
+      console.log('Copy/paste blocking script injected!');
+    `;
+    (document.head || document.documentElement).appendChild(script);
   }
 };
 
