@@ -16,7 +16,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const script = document.createElement('script');
     script.textContent = `
       // Chặn copy, cut, paste, và contextmenu
-      ['copy', 'cut', 'paste', 'contextmenu'].forEach(eventType => {
+      ['copy', 'cut', 'contextmenu'].forEach(eventType => {
         document.addEventListener(eventType, function(e) {
           e.preventDefault();
           e.stopPropagation();
