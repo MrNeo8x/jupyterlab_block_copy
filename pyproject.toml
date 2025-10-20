@@ -4,7 +4,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyterlab_block_copy"
-version = "0.1.0"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"

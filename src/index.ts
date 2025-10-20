@@ -25,14 +25,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
 
           // Chặn trên document (toàn bộ)
-          ['copy', 'cut', 'paste', 'contextmenu'].forEach(eventType => {
+          ['copy', 'cut','contextmenu'].forEach(eventType => {
               document.addEventListener(eventType, blockEvent, { capture: true });
           });
 
           // Thêm chặn cụ thể cho notebook container (.jp-Notebook)
           const notebook = document.querySelector('.jp-Notebook');
           if (notebook) {
-              ['copy', 'cut', 'paste', 'contextmenu'].forEach(eventType => {
+              ['copy', 'cut', 'contextmenu'].forEach(eventType => {
                   notebook.addEventListener(eventType, blockEvent, { capture: true });
               });
           }
@@ -41,14 +41,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
           const observer = new MutationObserver(() => {
               const editors = document.querySelectorAll('.cm-editor, .CodeMirror');
               editors.forEach(editor => {
-                  ['copy', 'cut', 'paste', 'contextmenu'].forEach(eventType => {
+                  ['copy', 'cut','contextmenu'].forEach(eventType => {
                       editor.addEventListener(eventType, blockEvent, { capture: true });
                   });
               });
           });
           observer.observe(document.body, { childList: true, subtree: true });
 
-          console.log('Full copy/paste blocking script injected!');
+          console.log('Full copy/cut blocking script injected!');
       }, 1000);  // Delay 1s để DOM load đầy đủ
     `;
     (document.head || document.documentElement).appendChild(script);
