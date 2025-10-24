@@ -25,14 +25,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
 
           // Chặn trên document (toàn bộ)
-          ['copy', 'cut','contextmenu'].forEach(eventType => {
+          ['copy', 'cut'].forEach(eventType => {
               document.addEventListener(eventType, blockEvent, { capture: true });
           });
 
           // Thêm chặn cụ thể cho notebook container (.jp-Notebook)
           const notebook = document.querySelector('.jp-Notebook');
           if (notebook) {
-              ['copy', 'cut', 'contextmenu'].forEach(eventType => {
+              ['copy', 'cut'].forEach(eventType => {
                   notebook.addEventListener(eventType, blockEvent, { capture: true });
               });
           }
@@ -41,7 +41,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           const observer = new MutationObserver(() => {
               const editors = document.querySelectorAll('.cm-editor, .CodeMirror');
               editors.forEach(editor => {
-                  ['copy', 'cut','contextmenu'].forEach(eventType => {
+                  ['copy', 'cut'].forEach(eventType => {
                       editor.addEventListener(eventType, blockEvent, { capture: true });
                   });
               });
