@@ -15,41 +15,71 @@ const plugin: JupyterFrontEndPlugin<void> = {
      // Inject script để chặn events
     const script = document.createElement('script');
     script.textContent = `
-      setTimeout(function() {
-          // Helper function để chặn event
-          function blockEvent(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation();
-              return false;
-          }
-
-          // Chặn trên document (toàn bộ)
-          ['copy', 'cut'].forEach(eventType => {
-              document.addEventListener(eventType, blockEvent, { capture: true });
-          });
-
-          // Thêm chặn cụ thể cho notebook container (.jp-Notebook)
-          const notebook = document.querySelector('.jp-Notebook');
-          if (notebook) {
-              ['copy', 'cut'].forEach(eventType => {
-                  notebook.addEventListener(eventType, blockEvent, { capture: true });
-              });
-          }
-
-          // Để theo dõi cells mới (CodeMirror editors)
-          const observer = new MutationObserver(() => {
-              const editors = document.querySelectorAll('.cm-editor, .CodeMirror');
-              editors.forEach(editor => {
-                  ['copy', 'cut'].forEach(eventType => {
-                      editor.addEventListener(eventType, blockEvent, { capture: true });
-                  });
-              });
-          });
-          observer.observe(document.body, { childList: true, subtree: true });
-
-          console.log('Full copy/cut blocking script injected!');
-      }, 1000);  // Delay 1s để DOM load đầy đủ
+     setTimeout(function() {
+    let pendingClearTimeout = null;
+    
+    function clearClipboardNow() {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText('').catch(err => {
+                console.warn('Failed to clear clipboard:', err);
+            });
+        } else {
+            console.warn('Clipboard API not supported');
+        }
+        console.log('🧹 Clipboard cleared immediately on blur/hidden.');
+        if (pendingClearTimeout) {
+            clearTimeout(pendingClearTimeout);
+            pendingClearTimeout = null;
+        }
+    }
+    
+    function scheduleClipboardClear(delay = 1000) {  // Reduced to 1s for faster clear
+        if (pendingClearTimeout) {
+            clearTimeout(pendingClearTimeout);
+        }
+        pendingClearTimeout = setTimeout(() => {
+            clearClipboardNow();
+        }, delay);
+        console.log(`⏳ Clipboard clear scheduled in ${delay}ms.`);
+    }
+    
+    function onClipboardEvent(e) {
+        const isCodeCell = e.target.closest('.cm-editor, .CodeMirror');
+        
+        if (e.type === 'copy' || e.type === 'cut') {
+            if (isCodeCell) {
+                console.log(`📋 Detected ${e.type} from code cell, scheduling clear.`);
+                scheduleClipboardClear(1000);
+            }
+        } else if (e.type === 'paste') {
+            if (isCodeCell && pendingClearTimeout) {
+                console.log('📋 Detected internal paste to code cell, resetting clear timer.');
+                scheduleClipboardClear(1000);  // Reset timer to allow chained operations
+            } else if (isCodeCell) {
+                console.log('📋 Paste from external to code cell (no pending clear).');
+            }
+        }
+    }
+    
+    // Listen for clipboard events
+    ['copy', 'cut', 'paste'].forEach(eventType => {
+        document.addEventListener(eventType, onClipboardEvent, { capture: false });
+    });
+    
+    // Clear on window blur (e.g., switch to external app or tab)
+    window.addEventListener('blur', () => {
+        clearClipboardNow();
+    });
+    
+    // Clear on page hidden (e.g., switch tabs or minimize)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearClipboardNow();
+        }
+    });
+    
+    console.log('✅ Enhanced clipboard protection: Short delay + auto-clear on blur/hidden for stronger external block, internal resets timer.');
+}, 1000);
     `;
     (document.head || document.documentElement).appendChild(script);
   }
