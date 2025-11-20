@@ -40,7 +40,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         pendingClearTimeout = setTimeout(() => {
             clearClipboardNow();
         }, delay);
-        console.log(`Clipboard clear scheduled in ${delay}ms.`);
+        console.log('Clipboard clear scheduled in ${delay}ms.');
     }
     
     function onClipboardEvent(e) {
