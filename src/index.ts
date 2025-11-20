@@ -40,7 +40,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         pendingClearTimeout = setTimeout(() => {
             clearClipboardNow();
         }, delay);
-        console.log('Clipboard clear scheduled in ${delay}ms.');
+        console.log('Clipboard clear scheduled');
     }
     
     function onClipboardEvent(e) {
@@ -48,7 +48,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         
         if (e.type === 'copy' || e.type === 'cut') {
             if (isCodeCell) {
-                console.log(`Detected ${e.type} from code cell, scheduling clear.`);
+                console.log('Detected from code cell, scheduling clear.');
                 scheduleClipboardClear(1000);
             }
         } else if (e.type === 'paste') {
