@@ -1,12 +1,17 @@
-const plugin = {
-    id: 'jupyterlab_block_copy:plugin',
-    description: 'A JupyterLab extension. block copy/cut events in jupyterLab 0.1.6',
-    autoStart: true,
-    activate: (app) => {
-        console.log('JupyterLab extension jupyterlab_block_copy is activated!');
-        // Inject script để chặn events
-        const script = document.createElement('script');
-        script.textContent = `
+import {
+  JupyterFrontEnd,
+  JupyterFrontEndPlugin
+} from '@jupyterlab/application';
+
+const plugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyterlab_block_copy:plugin',
+  description: 'A JupyterLab extension. block copy/cut events in jupyterLab 0.1.6',
+  autoStart: true,
+  activate: (app: JupyterFrontEnd) => {
+    console.log('JupyterLab extension jupyterlab_block_copy is activated!');
+    // Inject script để chặn events
+    const script = document.createElement('script');
+    script.textContent = `
 setTimeout(function() {
   let pendingClearTimeout = null;
 
@@ -73,7 +78,8 @@ setTimeout(function() {
   console.log('Enhanced clipboard protection: Short delay + auto-clear on blur/hidden for stronger external block, internal resets timer.');
 }, 1000);
     `;
-        (document.head || document.documentElement).appendChild(script);
-    }
+    (document.head || document.documentElement).appendChild(script);
+  }
 };
+
 export default plugin;
